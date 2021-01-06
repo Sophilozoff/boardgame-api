@@ -1,0 +1,45 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Boardgame index{% endblock %}
+
+{% block container %}
+
+    <h1>Boardgame index</h1>
+<div class="border border-2">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Image</th>
+                <th>PlayersMin</th>
+                <th>PlayersMax</th>
+                <th>AverageTime</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for boardgame in boardgames %}
+            <tr>
+                <td>{{ boardgame.id }}</td>
+                <td>{{ boardgame.name }}</td>
+                <td>{{ boardgame.image }}</td>
+                <td>{{ boardgame.playersMin }}</td>
+                <td>{{ boardgame.playersMax }}</td>
+                <td>{{ boardgame.averageTime }}</td>
+                <td>
+                    <a class="btn btn-dark" href="{{ path('boardgame_show', {'id': boardgame.id}) }}">VOIR</a>
+                    <a class="btn btn-warning" href="{{ path('boardgame_edit', {'id': boardgame.id}) }}">EDITER</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="btn btn-primary" href="{{ path('boardgame_new') }}">Create new</a>
+</div>
+{% endblock %}
