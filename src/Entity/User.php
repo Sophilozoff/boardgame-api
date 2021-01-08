@@ -2,14 +2,20 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UserRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ApiResource
+ * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * 
+ * @ApiResource(
+ *     normalizationContext={"groups"={"user:read"}},
+ *     denormalizationContext={"groups"={"user:write"}}
+ * )
  */
 class User implements UserInterface
 {
@@ -17,16 +23,19 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"user:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Groups({"user:read", "user:write"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"user:read"})
      */
     private $roles = [];
 
@@ -37,9 +46,26 @@ class User implements UserInterface
     private $password;
 
     /**
+     * @Groups({"user:write"})
+     * @SerializedName("password")
+     */
+    private $plainPassword;
+
+    /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user:read", "user:write"})
      */
     private $username;
+
+     /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        $this->plainPassword = null;
+    }
+
 
     public function getId(): ?int
     {
@@ -68,6 +94,13 @@ class User implements UserInterface
         return (string) $this->email;
     }
 
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+    
     /**
      * @see UserInterface
      */
@@ -86,7 +119,26 @@ class User implements UserInterface
 
         return $this;
     }
+    
+    /**
+     * Get the value of plainPassword
+     */ 
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
 
+    /**
+     * Set the value of plainPassword
+     *
+     * @return  self
+     */ 
+    public function setPlainPassword($plainPassword)
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
     /**
      * @see UserInterface
      */
@@ -102,6 +154,7 @@ class User implements UserInterface
         return $this;
     }
 
+
     /**
      * @see UserInterface
      */
@@ -110,19 +163,7 @@ class User implements UserInterface
         // not needed when using the "bcrypt" algorithm in security.yaml
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials()
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
-    }
 
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
 
-        return $this;
-    }
+
 }
